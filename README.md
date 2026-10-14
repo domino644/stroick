@@ -6,6 +6,8 @@ Aplikacja ma być przydatna zarówno dla muzyków, jak i osób uczących się gr
 
 ## Główne funkcje
 
+TODO: musty i shouldy oraz miejsce do cotygodniowych updatów
+
 ### 1. Stroik wykorzystujący mikrofon
 
 - Wykrywanie wysokości dźwięku w czasie rzeczywistym.
