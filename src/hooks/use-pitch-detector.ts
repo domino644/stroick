@@ -7,14 +7,14 @@ export type DetectorStatus = 'idle' | 'starting' | 'listening' | 'denied' | 'err
 
 /** Samples analysed per frame (at the device rate). ~93 ms at 44.1 kHz — enough for E2 and lower. */
 const ANALYSIS_SIZE = 4096;
-/** Samples delivered per recorder callback — the analysis hop (~46 ms at 44.1 kHz). */
-const BUFFER_LENGTH = 2048;
+/** Samples delivered per recorder callback — the analysis hop (~21 ms, ~47 updates/s at 48 kHz). */
+const BUFFER_LENGTH = 1024;
 /** Below this RMS the input is treated as silence. */
 const SILENCE_RMS = 0.01;
 /** Pitches that YIN reports with less clarity than this are discarded. */
 const MIN_CLARITY = 0.85;
 /** Number of recent detections the displayed pitch is the median of. */
-const SMOOTHING = 5;
+const SMOOTHING = 8;
 /** How long the last note stays on screen after the sound stops. */
 const HOLD_MS = 600;
 
@@ -78,7 +78,12 @@ export function usePitchDetector() {
       });
 
       const callbackResult = recorder.onAudioReady(
-        { sampleRate: 44100, bufferLength: BUFFER_LENGTH, channelCount: 1 },
+        {
+          // Use the hardware's native rate (48 kHz on iPhones) to avoid resampling.
+          sampleRate: AudioManager.getDevicePreferredSampleRate() || 48000,
+          bufferLength: BUFFER_LENGTH,
+          channelCount: 1,
+        },
         ({ buffer }) => {
           // Slide the analysis window and append the newest samples.
           const chunk = buffer.getChannelData(0);
